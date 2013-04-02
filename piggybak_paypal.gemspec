@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "PayPal Payment Calculator for Piggybak"
   s.description = "Collect muneez via PayPal on Piggybak.  That is alot of P's plz."
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 3.2.13"
