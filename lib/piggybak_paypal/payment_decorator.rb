@@ -24,10 +24,9 @@ module PiggybakPaypal
           :signature => calculator.signature
         )
 
-        res = gateway.authorize(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
+        res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
 
         if res.success?
-          gateway.capture(order_total, res.authorization)
           return true
         else
           order.errors.add :payment_method_id, res.message.to_s
