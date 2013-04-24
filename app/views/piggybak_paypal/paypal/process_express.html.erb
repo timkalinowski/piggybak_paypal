@@ -1,0 +1,101 @@
+<div class="container_12">
+  <div id="checkout" class="grid_6">
+    <h1>PayPal Checkout</h1>
+    <p>Your order has not been placed yet.  Please confirm your details below, select a shipping option and click 'Place Order' to complete the process.</p>
+    <%= form_for @order, :url => piggybak.orders_url, :method => "POST", :html => { :class => 'checkout' } do |f| %>
+
+    <div id="user_details" class="checkout-panel">
+      <h3>Contact Details</h3>
+      <div class="item">
+        <%= f.label :email %>
+        <%= f.text_field :email, :class => "required" %>
+      </div>
+      <div class="item">
+        <%= f.label :phone %>
+        <%= f.text_field :phone, :class => "required" %>
+      </div>
+    </div>
+    <div id="billing_address" class="checkout-panel">
+      <h3>Billing Address</h3>
+      <p><%= @order.billing_address.firstname %> <%= @order.billing_address.lastname %><br>
+      <%= @order.billing_address.address1 %> <%= @order.billing_address.address2 %><br>
+      <%= @order.billing_address.city %>, <%= @order.billing_address.state %> <%= @order.billing_address.zip %><br>
+      <%= @order.billing_address.country.name %>
+      </p>
+      <%= f.fields_for :billing_address do |billing_address| %>
+        <%= billing_address.hidden_field :country_id %> 
+        <%= billing_address.hidden_field :firstname %> 
+        <%= billing_address.hidden_field :lastname %> 
+        <%= billing_address.hidden_field :address1 %> 
+        <%= billing_address.hidden_field :address2 %> 
+        <%= billing_address.hidden_field :city %> 
+        <%= billing_address.hidden_field :state_id %> 
+        <%= billing_address.hidden_field :zip %> 
+      <% end -%>
+    </div>
+    <div id="shipping_address"  class="checkout-panel">
+      <h3>Shipping Address</h3>
+      <p><%= @order.shipping_address.firstname %> <%= @order.shipping_address.lastname %><br>
+      <%= @order.shipping_address.address1 %> <%= @order.shipping_address.address2 %><br>
+      <%= @order.shipping_address.city %>, <%= @order.shipping_address.state %> <%= @order.shipping_address.zip %><br>
+      <%= @order.shipping_address.country.name %>
+      </p>
+      <%= f.fields_for :shipping_address do |shipping_address| %>
+        <%= shipping_address.hidden_field :country_id %> 
+        <%= shipping_address.hidden_field :firstname %> 
+        <%= shipping_address.hidden_field :lastname %> 
+        <%= shipping_address.hidden_field :address1 %> 
+        <%= shipping_address.hidden_field :address2 %> 
+        <%= shipping_address.hidden_field :city %> 
+        <%= shipping_address.hidden_field :state_id %> 
+        <%= shipping_address.hidden_field :zip %> 
+      <% end -%>
+    </div>
+
+    <div id="add_details">
+      <div id="shipping" class="checkout-panel">
+      <h3>Select Shipping Option</h3>
+        <%= f.fields_for :line_items, @order.line_items.detect { |li| li.line_item_type == "shipment" } do |line_item_f| %>
+          <%= line_item_f.hidden_field :line_item_type, { :value => "shipment" } %>
+          <%= line_item_f.fields_for :shipment do |shipment| %>
+            <div class="item">
+              <%= shipment.select :shipping_method_id, @shipping_options.collect{|o| [o[:label], o[:id]] } %>
+            </div>
+          <% end -%>
+        <% end -%>
+      </div>
+      <%= f.fields_for :line_items, @order.line_items.detect { |li| li.line_item_type == "payment" } do |line_item_f| %>
+        <%= line_item_f.hidden_field :line_item_type, { :value => "payment" } %>
+        <%= line_item_f.fields_for :payment do |payment| %>
+          <%= payment.hidden_field :month, :value => Time.now.month %>
+          <%= payment.hidden_field :year, :value => Time.now.year %>
+          <%= payment.hidden_field :token, :value => @token %>
+          <%= payment.hidden_field :payer_id, :value => @payer_id %>
+        <% end -%>
+      <% end -%>
+      <div id="submit">
+        <%= f.submit :value => "Place Order", :class=> 'progression' %>
+      </div>
+    </div>
+    <% end -%>
+  </div>
+  <div id="totals_section" class="grid_6">
+    <h3 class="totals">Cart Totals</h3>
+    <div class="pinned">
+      <%= render "piggybak/cart/items", :page => "checkout" %>
+    </div>
+  </div>
+</div>
+<%= javascript_include_tag "piggybak/jquery.validate" %>
+<script>
+$(function() {
+  $('#new_piggybak_order').validate({
+    submitHandler: function(form) {
+      var submit = $($('#new_piggybak_order input[type=submit]'));
+      submit.prop('disabled',true);
+      submit.attr('value','Processing...');
+      form.submit()
+    }
+  });
+});
+</script>

@@ -3,28 +3,59 @@ module PiggybakPaypal
     extend ActiveSupport::Concern
 
     included do
+      attr_accessor :token
+      attr_accessor :payer_id
+
+      attr_accessible :token, :payer_id
+
+      before_validation :set_defaults, :on => :create
+
+      def set_defaults
+        if self.token && self.payer_id
+          Rails.logger.warn("****** Using bogus cc info *****")
+          self.number = '4111111111111111'
+          self.month = Time.now.month
+          self.year = Time.now.year
+          self.verification_value = '111'
+        end
+      end
 
       def process(order)
         return true if !self.new_record?
-        ActiveMerchant::Billing::Base.mode = Piggybak.config.activemerchant_mode
-        calculator = ::PiggybakPaypal::PaymentCalculator::Paypal.new(self.payment_method)
-        payment_credit_card = ActiveMerchant::Billing::CreditCard.new(self.credit_card.merge(
-          "first_name" => "#{order.billing_address.firstname}",
-          "last_name" => "#{order.billing_address.lastname}"
-        ))
-        billing_address = order.avs_address.merge(
-          "first_name" => "#{order.billing_address.firstname}",
-          "last_name" => "#{order.billing_address.lastname}",
-          "phone" => order.phone
-        )
-        order_total = (order.total_due * 100).to_i
-        gateway = ActiveMerchant::Billing::PaypalGateway.new(
-          :login => calculator.login,
-          :password => calculator.password,
-          :signature => calculator.signature
-        )
 
-        res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
+        # if transaction_id is present this is paypal_express
+        if self.token
+          ActiveMerchant::Billing::Base.mode = Piggybak.config.activemerchant_mode
+          calculator = ::PiggybakPaypal::PaymentCalculator::Paypal.new(self.payment_method)
+          self.month = Time.now.month
+          self.year = Time.now.year
+          order_total = (order.total_due * 100).to_i
+          res = calculator.gateway.purchase(order_total, 
+            :ip => order.ip_address, 
+            :token => self.token, 
+            :payer_id => self.payer_id
+          )
+        else
+          ActiveMerchant::Billing::Base.mode = Piggybak.config.activemerchant_mode
+          calculator = ::PiggybakPaypal::PaymentCalculator::Paypal.new(self.payment_method)
+          payment_credit_card = ActiveMerchant::Billing::CreditCard.new(self.credit_card.merge(
+            "first_name" => "#{order.billing_address.firstname}",
+            "last_name" => "#{order.billing_address.lastname}"
+          ))
+          billing_address = order.avs_address.merge(
+            "first_name" => "#{order.billing_address.firstname}",
+            "last_name" => "#{order.billing_address.lastname}",
+            "phone" => order.phone
+          )
+          order_total = (order.total_due * 100).to_i
+          gateway = ActiveMerchant::Billing::PaypalGateway.new(
+            :login => calculator.login,
+            :password => calculator.password,
+            :signature => calculator.signature
+          )
+
+          res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
+        end
 
         if res.success?
           return true
