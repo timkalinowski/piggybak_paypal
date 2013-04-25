@@ -1,5 +1,6 @@
 module PiggybakPaypal
   class PaypalController < ApplicationController
+    layout 'application'
     before_filter :set_payment_method
 
     def express
