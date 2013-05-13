@@ -66,7 +66,7 @@ module PiggybakPaypal
             :signature => calculator.signature
           )
 
-          res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address, :shipping_address => shipping_address )
+          res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
         end
 
         if res.success?
