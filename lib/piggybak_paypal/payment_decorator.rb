@@ -45,19 +45,19 @@ module PiggybakPaypal
           billing_address = order.avs_address.merge(
             "first_name" => "#{order.billing_address.firstname}",
             "last_name" => "#{order.billing_address.lastname}",
-            "phone" => order.phone,
-            "email" => order.email
+            :phone => order.phone,
+            :email => order.email
           )
           shipping_address = {
-            "first_name" => "#{order.shipping_address.firstname}",
-            "last_name" => "#{order.shipping_address.lastname}",
-            "address1" => "#{order.shipping_address.address1}",
-            "city" => "#{order.shipping_address.city}",
-            "state" => "#{order.shipping_address.state_display}",
-            "country" => "#{order.shipping_address.country.abbr}",
-            "zip" => "#{order.shipping_address.zip}",
-            "phone" => order.phone,
-            "email" => order.email
+            :first_name => "#{order.shipping_address.firstname}",
+            :last_name => "#{order.shipping_address.lastname}",
+            :address1 => "#{order.shipping_address.address1}",
+            :city => "#{order.shipping_address.city}",
+            :state => "#{order.shipping_address.state_display}",
+            :country => "#{order.shipping_address.country.abbr}",
+            :zip => "#{order.shipping_address.zip}",
+            :phone => order.phone,
+            :email => order.email
           }
           order_total = (order.total_due * 100).to_i
           gateway = ActiveMerchant::Billing::PaypalGateway.new(
