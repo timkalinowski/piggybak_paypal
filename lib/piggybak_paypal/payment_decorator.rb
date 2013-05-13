@@ -49,15 +49,14 @@ module PiggybakPaypal
             :email => order.email
           )
           shipping_address = {
-            :first_name => "#{order.shipping_address.firstname}",
-            :last_name => "#{order.shipping_address.lastname}",
+            :name => "#{order.shipping_address.firstname} #{order.shipping_address.lastname}",
             :address1 => "#{order.shipping_address.address1}",
+            :address2 => "#{order.shipping_address.address2}",
             :city => "#{order.shipping_address.city}",
             :state => "#{order.shipping_address.state_display}",
             :country => "#{order.shipping_address.country.abbr}",
             :zip => "#{order.shipping_address.zip}",
-            :phone => order.phone,
-            :email => order.email
+            :phone => order.phone
           }
           order_total = (order.total_due * 100).to_i
           gateway = ActiveMerchant::Billing::PaypalGateway.new(
@@ -66,7 +65,7 @@ module PiggybakPaypal
             :signature => calculator.signature
           )
 
-          res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address )
+          res = gateway.purchase(order_total, payment_credit_card, :ip => order.ip_address, :address => billing_address, :shipping_address => shipping_address )
         end
 
         if res.success?
