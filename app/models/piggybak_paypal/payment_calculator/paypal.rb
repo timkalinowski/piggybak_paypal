@@ -19,8 +19,8 @@ module PiggybakPaypal
     def details_from_token(token)
       response = gateway.details_for(token)
       data = response.params
-      billing_country = Piggybak::Country.find_by_abbr(data['PayerInfo']['Address']['Country'])
-      shipping_country = Piggybak::Country.find_by_abbr(data['PaymentDetails']['ShipToAddress']['Country'])
+      billing_country = Piggybak::Country.where(abbr: data['PayerInfo']['Address']['Country']).first
+      shipping_country = Piggybak::Country.where(abbr: data['PaymentDetails']['ShipToAddress']['Country']).first
       details = {
         billing_address_attributes: {
           firstname: data['PayerInfo']['PayerName']['FirstName'],

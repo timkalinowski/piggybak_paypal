@@ -9,7 +9,7 @@ module PiggybakPaypal
     
     initializer "piggybak_paypal.add_calculators" do
       Piggybak.config do |config|
-        config.payment_calculators = ["::PiggybakPaypal::PaymentCalculator::Paypal"]
+        config.payment_calculators << "::PiggybakPaypal::PaymentCalculator::Paypal"
       end
     end
     
