@@ -6,7 +6,7 @@ module PiggybakPaypal
       attr_accessor :token
       attr_accessor :payer_id
 
-      attr_accessible :token, :payer_id
+      #attr_accessible :token, :payer_id //changed for 4.1
 
       before_validation :set_defaults, :on => :create
 
